@@ -25,15 +25,15 @@ resource "aws_ecr_repository" "mysql_repo" {
 #   })
 # }
 
-# resource "aws_iam_role_policy_attachment" "attach_ecr_policy" {
-#   role       = aws_iam_role.ec2_ecr_access.name
-#   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-# }
+resource "aws_key_pair" "generated_key" {
+  key_name   = var.key_name
+  public_key = file(var.public_key_path)
+}
 
 resource "aws_instance" "web_ec2" {
   ami           = "ami-09e6f87a47903347c" # Amazon Linux 2 in us-east-1
   instance_type = "t2.micro"
-  key_name      = var.key_name
+  key_name      = aws_key_pair.generated_key.key_name
 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
   subnet_id              = data.aws_subnet.public_subnet.id
